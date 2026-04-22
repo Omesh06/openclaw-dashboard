@@ -35,5 +35,16 @@ def init_db():
         )
     ''')
     
-    conn.commit()
-    conn.close()
+    # Audit Log Table
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS audit_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            action TEXT,
+            repo TEXT,
+            branch TEXT,
+            user TEXT,
+            timestamp TEXT,
+            status TEXT,
+            details TEXT
+        )
+    ''')
