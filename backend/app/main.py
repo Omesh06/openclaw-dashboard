@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 from app.api.routes import jira, context, health, queue, safety, resolution
+from app.core.database import init_db
 
 app = FastAPI(
     title="OpenClaw Dashboard API",
     description="Backend for the AI-Assisted Conflict Resolution Workflow",
-    version="0.1.0"
+    version="1.0.0"
 )
+
+@app.on_event("startup")
+async def startup_event():
+    init_db()
 
 # Include Routers
 app.include_router(jira.router, prefix="/api/jira", tags=["Jira"])

@@ -1,39 +1,45 @@
 import uuid
+import json
 from datetime import datetime
 from typing import List, Dict, Optional
+from app.core.database import get_db_connection
 
 class HITLQueueService:
     """
-    Manages the Human-in-the-Loop queue for AI-generated conflict reports.
+    Manages the Human-in-the-Loop queue using SQLite persistence.
     """
-    def __init__(self):
-        # In-memory storage for the prototype. Would be a DB (e.g., PostgreSQL) in production.
-        self._queue: List[Dict] = []
-
     def add_report(self, repo: str, branches: List[str], conflict_details: Dict, priority: str = "medium"):
         report_id = str(uuid.uuid4())
-        report = {
-            "id": report_id,
-            "repo": repo,
-            "branches": branches,
-            "details": conflict_details,
-            "priority": priority,
-            "status": "pending",
-            "created_at": datetime.now().isoformat()
-        }
-        self._queue.append(report)
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute(
+            "INSERT INTO hitl_queue (id, repo, branches, details, priority, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (report_id, repo, json.dumps(branches), json.dumps(conflict_details), priority, "pending", datetime.now().isoformat())
+        )
+        conn.commit()
+        conn.close()
         return report_id
 
     def get_pending(self) -> List[Dict]:
-        return [r for r in self._queue if r["status"] == "pending"]
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM hitl_queue WHERE status = 'pending'")
+        rows = cursor.fetchall()
+        conn.close()
+        
+        return [dict(row) for row in rows]
 
     def resolve_report(self, report_id: str, resolution: str):
-        for r in self._queue:
-            if r["id"] == report_id:
-                r["status"] = "resolved"
-                r["resolution"] = resolution
-                return True
-        return False
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        cursor.execute("UPDATE hitl_queue SET status = 'resolved', resolution = ? WHERE id = ?", (resolution, report_id))
+        conn.commit()
+        changed = cursor.rowcount > 0
+        conn.close()
+        return changed
 
     def clear_queue(self):
-        self._queue = []
+        conn = get_db_connection()
+        conn.execute("DELETE FROM hitl_queue")
+        conn.commit()
+        conn.close()
