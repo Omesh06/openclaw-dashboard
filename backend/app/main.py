@@ -1,12 +1,16 @@
 from fastapi import FastAPI
 from app.api.routes import jira, context, health, queue, safety, resolution, audit, commands
 from app.core.database import init_db
+from app.core.logging import global_exception_handler
 
 app = FastAPI(
     title="OpenClaw Dashboard API",
     description="Backend for the AI-Assisted Conflict Resolution Workflow",
     version="1.0.0"
 )
+
+# Register Global Exception Handler
+app.add_exception_handler(Exception, global_exception_handler)
 
 @app.on_event("startup")
 async def startup_event():
