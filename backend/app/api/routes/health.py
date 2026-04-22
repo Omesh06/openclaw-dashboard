@@ -1,9 +1,9 @@
 from fastapi import APIRouter
-from app.services.health_scanner_service import RepoHealthScanner
+from app.services.health_cache_service import HealthCacheService
 
 router = APIRouter()
 
-# Mock config for demonstration (In production, this comes from a DB or config file)
+# Mock config for demonstration
 REPO_CONFIGS = [
     {
         "path": "/home/ubuntu/.openclaw/workspace/sorch_ai_analysis",
@@ -12,11 +12,13 @@ REPO_CONFIGS = [
     }
 ]
 
+# Initialize cache service
+cache_service = HealthCacheService(REPO_CONFIGS)
+
 @router.get("/status")
 async def get_health_status():
     """
-    Returns the 'Traffic Light' status for all tracked repositories.
+    Returns the cached 'Traffic Light' status for all tracked repositories.
     """
-    scanner = RepoHealthScanner(repos=[c["path"] for c in REPO_CONFIGS])
-    status = scanner.get_global_status(REPO_CONFIGS)
+    status = cache_service.get_status()
     return {"status": "success", "data": status}

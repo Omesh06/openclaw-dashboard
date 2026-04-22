@@ -15,6 +15,11 @@ app.add_exception_handler(Exception, global_exception_handler)
 @app.on_event("startup")
 async def startup_event():
     init_db()
+    # Start background health scanner
+    from app.api.routes.health import cache_service
+    cache_service.start_background_worker(interval=300)
+    cache_service.update_cache() # Initial sync
+
 
 # Include Routers
 app.include_router(jira.router, prefix="/api/jira", tags=["Jira"])
