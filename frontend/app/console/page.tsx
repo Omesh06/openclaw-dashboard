@@ -21,17 +21,14 @@ export default function AIConsole() {
     setIsLoading(true);
 
     try {
-      // In a real app, this would go to an LLM-powered route
-      // For prototype, we simulate a response
-      setTimeout(() => {
-        setMessages(prev => [...prev, { 
-          role: "bot", 
-          text: `I've received your command: "${input}". I'm analyzing the codebase now...` 
-        }]);
-        setIsLoading(false);
-      }, 1000);
+      const res = await axios.post(`${API_BASE}/commands/execute`, { text: userMsg.text });
+      setMessages(prev => [...prev, { 
+        role: "bot", 
+        text: res.data.message 
+      }]);
     } catch (err) {
-      setMessages(prev => [...prev, { role: "bot", text: "Sorry, I encountered an error processing that request." }]);
+      setMessages(prev => [...prev, { role: "bot", text: "Sorry, I encountered an error executing that command." }]);
+    } finally {
       setIsLoading(false);
     }
   };
