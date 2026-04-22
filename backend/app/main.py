@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import jira, context
+from app.api.routes import jira, context, health, queue
 
 app = FastAPI(
     title="OpenClaw Dashboard API",
@@ -10,6 +10,8 @@ app = FastAPI(
 # Include Routers
 app.include_router(jira.router, prefix="/api/jira", tags=["Jira"])
 app.include_router(context.router, prefix="/api/context", tags=["Context"])
+app.include_router(health.router, prefix="/api/health", tags=["Health"])
+app.include_router(queue.router, prefix="/api/queue", tags=["Queue"])
 
 @app.get("/")
 async def root():
