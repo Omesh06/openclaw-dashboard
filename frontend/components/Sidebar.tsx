@@ -3,8 +3,8 @@ import Link from "next/link";
 
 export default function Sidebar() {
   const menuItems = [
+    { icon: MessageSquare, label: "AI Hub", href: "/chat" },
     { icon: LayoutDashboard, label: "Command Center", href: "/" },
-    { icon: MessageSquare, label: "AI Console", href: "/console" },
     { icon: GitMerge, label: "Resolution", href: "/resolution" },
     { icon: ShieldAlert, label: "Safety Suite", href: "/safety" },
     { icon: Settings, label: "Settings", href: "/settings" },

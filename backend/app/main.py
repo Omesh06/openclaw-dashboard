@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.api.routes import jira, context, health, queue, safety, resolution, audit, commands
+from app.api.routes import jira, context, health, queue, safety, resolution, audit, commands, chat
 from app.core.database import init_db
 from app.core.logging import global_exception_handler
 
@@ -30,6 +30,7 @@ app.include_router(safety.router, prefix="/api/safety", tags=["Safety"])
 app.include_router(resolution.router, prefix="/api/resolution", tags=["Resolution"])
 app.include_router(audit.router, prefix="/api/audit", tags=["Audit"])
 app.include_router(commands.router, prefix="/api/commands", tags=["Commands"])
+app.include_router(chat.router, prefix="/api/chat", tags=["Chat"])
 
 @app.get("/")
 async def root():
